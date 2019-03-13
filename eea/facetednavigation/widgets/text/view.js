@@ -15,6 +15,7 @@ Faceted.TextWidget = function(wid){
   var form = this.widget.find('form');
   form.submit(function(){
     js_widget.text_change(js_widget.button);
+    js_widget.set_default(this);
     return false;
   });
 
@@ -173,6 +174,22 @@ Faceted.TextWidget.prototype = {
     current.splice(index, 1);
     Faceted.Query[this.wid] = current;
     this.do_query(element);
+  },
+
+  set_default: function(element){
+    this.selected = this.input;
+    var value = this.selected.val();
+
+    var query = {};
+    query.redirect = '';
+    query.updateCriterion_button = 'Save';
+    query.cid = this.wid;
+    query['faceted.' + this.wid + '.default'] = value;
+
+    jQuery(FacetedEdit.Events).trigger(FacetedEdit.Events.AJAX_START, {msg: 'Saving ...'});
+    jQuery.post(FacetedEdit.BASEURL + '@@faceted_configure', query, function(data){
+      jQuery(FacetedEdit.Events).trigger(FacetedEdit.Events.AJAX_STOP, {msg: data});
+    });
   }
 };
 
